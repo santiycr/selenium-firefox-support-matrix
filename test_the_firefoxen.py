@@ -8,6 +8,7 @@ import json
 import unittest
 from time import sleep
 import argparse
+import random
 
 from selenium import webdriver
 import nose
@@ -40,26 +41,31 @@ class FirefoxSupportTest(unittest.TestCase):
               'prevent-requeue': True,
               }
         self.native = False
-        try:
-            self.driver = webdriver.Remote(desired_capabilities=dc,
-                                           command_executor="http://%s:%s@%s:%s/wd/hub" %
-                                           (USER, KEY, HOST, PORT))
-        except Exception:
-            self.driver = None
-        else:
-            self.native = self.driver.capabilities['nativeEvents']
+        for i in range(3):
+            try:
+                self.driver = webdriver.Remote(desired_capabilities=dc,
+                                               command_executor="http://%s:%s@%s:%s/wd/hub"
+                                               % (USER, KEY, HOST, PORT))
+            except Exception:
+                self.driver = None
+            else:
+                self.native = self.driver.capabilities['nativeEvents']
+                break
 
     def test_browser_works(self):
         if not self.driver:
             self.fail("Failed to launch browser")
-        for url in ['https://saucelabs.com', 'http://google.com']:
-            self.driver.get(url)
-            for i in range(30):
-                if self.driver.title:
-                    break
-                sleep(0.5)
-            else:
-                self.fail("title never showed")
+        url = random.choice(['https://saucelabs.com/login',
+                             'https://google.com', 'https://www.bing.com',
+                             'https://yahoo.com', 'https://www.facebook.com',
+                             'https://instagram.com'])
+        self.driver.get(url)
+        for i in range(30):
+            if self.driver.title:
+                break
+            sleep(0.5)
+        else:
+            self.fail("title never showed")
 
     def tearDown(self):
         if self.driver:
@@ -92,9 +98,10 @@ jars_to_test = args.selenium if args.selenium else [
     '2.14.1', '2.15.0', '2.16.0', '2.16.1', '2.17.0', '2.18.0', '2.19.0',
     '2.20.0', '2.21.0', '2.22.0', '2.23.0', '2.23.1', '2.24.0', '2.24.1',
     '2.25.0', '2.26.0', '2.27.0', '2.28.0', '2.29.0', '2.30.0', '2.31.0',
-    '2.32.0', '2.33.0',
+    '2.32.0', '2.33.0', '2.34.0', '2.35.0', '2.36.0', '2.37.0', '2.38.0',
+    '2.39.0', '2.40.0', '2.41.0', '2.42.2', '2.43.1', '2.44.0', '2.45.0',
 ]
-firefoxes_to_test = args.firefox if args.firefox else range(3, 23)
+firefoxes_to_test = args.firefox if args.firefox else range(3, 38)
 classes = {}
 for jar_version in jars_to_test:
     for ff_version in firefoxes_to_test:
